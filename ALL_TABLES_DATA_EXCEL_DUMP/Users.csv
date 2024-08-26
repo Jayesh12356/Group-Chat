@@ -1,0 +1,4 @@
+id,username,password,created_on,modified_on,email,name,contact_number
+6,jayesh,"$argon2id$v=19$m=65536,t=3,p=4$6kuELk3otaBg1jefJ9rjfQ$eYjHWQEFfPR+hL8gqKvBviR/jY/ue05VlVnMXcbj6FM","2024-08-25 22:23:12","2024-08-25 22:26:39",jayesh@gmail.com,"Jayesh Koli",9876543210
+7,pratiksha,"$argon2id$v=19$m=65536,t=3,p=4$1uaNkHp4VYd2Zhj/ThoIjA$fLEubBb1ILzmzxzrUSFU+LKyMuzkMlf1V72CORiC2WA","2024-08-25 22:23:26","2024-08-25 22:27:16",pratiksha@gmail.com,pratiksha,9876543210
+8,jyothi,"$argon2id$v=19$m=65536,t=3,p=4$+xiDDWrTLPkb7Y3ttuurlA$2dIr4QDPDup6jTgBGLCug/janirG4/TaKboULuXbtBI","2024-08-25 22:25:00","2024-08-25 22:25:00",jyothi@gmail.com,Jyothi,9876543210

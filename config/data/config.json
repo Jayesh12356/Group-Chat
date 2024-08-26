@@ -1,0 +1,13 @@
+{
+  "db_connections": {
+    "IP": "127.0.0.1",
+    "port": 3306,
+    "username": "_cd345d4dcb8b0fe6",
+    "password": "xYt9UtVl203hNP4z",
+    "database": "_cd345d4dcb8b0fe6"
+  },
+  "server": {
+    "port": 8002
+  },
+  "difftime": "+05:30"
+}

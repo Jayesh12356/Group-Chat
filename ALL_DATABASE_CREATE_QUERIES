@@ -1,0 +1,112 @@
+-- Users Table
+CREATE TABLE `gc_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `modified_on` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `email` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `contact_number` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Groups Table
+CREATE TABLE `gc_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `created_by` varchar(50) NOT NULL,
+  `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `modified_on` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `created_by` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Group Members Table
+CREATE TABLE `gc_group_members` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `modified_on` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_member` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `gc_group_members_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `gc_groups` (`id`),
+  CONSTRAINT `gc_group_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `gc_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Group Roles Table
+CREATE TABLE `gc_group_roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `role` enum('member', 'admin') DEFAULT 'member',
+  `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `modified_on` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_creator` tinyint(1) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `gc_group_roles_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `gc_groups` (`id`),
+  CONSTRAINT `gc_group_roles_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `gc_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Messages Table
+CREATE TABLE `gc_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
+  `modified_on` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `gc_messages_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `gc_groups` (`id`),
+  CONSTRAINT `gc_messages_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `gc_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Likes Table
+CREATE TABLE `gc_likes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `reaction_type` enum('like', 'love', 'laugh', 'sad', 'angry') DEFAULT 'like',
+  `liked_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `message_id` (`message_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `gc_likes_ibfk_1` FOREIGN KEY (`message_id`) REFERENCES `gc_messages` (`id`),
+  CONSTRAINT `gc_likes_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `gc_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- View for Messages with Reactions
+CREATE ALGORITHM=UNDEFINED DEFINER=`_cd345d4dcb8b0fe6`@`localhost` SQL SECURITY DEFINER 
+VIEW `_cd345d4dcb8b0fe6`.`gc_messages_with_reactions` AS 
+SELECT 
+  `m`.`id` AS `message_id`,
+  `m`.`group_id` AS `group_id`,
+  `m`.`user_id` AS `sender_id`,
+  `m`.`message` AS `message`,
+  `m`.`created_on` AS `created_on`,
+  `m`.`modified_on` AS `modified_on`,
+  `m`.`is_deleted` AS `message_deleted`,
+  `l`.`id` AS `like_id`,
+  `l`.`user_id` AS `liker_id`,
+  `l`.`reaction_type` AS `reaction_type`,
+  `l`.`liked_at` AS `liked_at`,
+  `l`.`is_deleted` AS `like_deleted`
+FROM 
+  (`_cd345d4dcb8b0fe6`.`gc_messages` `m` 
+  LEFT JOIN `_cd345d4dcb8b0fe6`.`gc_likes` `l` 
+  ON `m`.`id` = `l`.`message_id`) 
+WHERE 
+  `m`.`is_deleted` = 0;
