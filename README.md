@@ -1,3 +1,40 @@
+
+## How to Run the Application
+
+Follow these steps to set up and run the Group Chat application:
+
+1. **Create the Database:**
+   - Use all the `CREATE` statements provided in the `ALL_DATABASE_CREATE_QUERIES` file to set up the database. You can execute these queries in any MySQL setup.
+
+2. **Configure Database Connection:**
+   - Once your database is created, update the database connection settings in the `config->data->config.json` file to match your MySQL connection details.
+
+3. **Refer to Data Dump (Optional):**
+   - For initial data population, you can refer to the `ALL_TABLES_DATA_EXCEL_DUMP` file.
+
+4. **Set Up Redis:**
+   - Make sure you have a local Redis server running, as user sessions for login/logout are managed through Redis. You can start the Redis server by running the following command in the command line:
+     ```bash
+     redis-server.exe
+     ```
+
+5. **Run the Application:**
+   - Once you have properly configured your MySQL database and Redis server, start the application by running:
+     ```bash
+     npm start
+     ```
+
+6. **Server Logs:**
+   - Look for the following logs to confirm that the server is up and running:
+     ```
+     Running on port 8002
+     connected to database
+     ```
+
+7. **Testing Endpoints:**
+   - To test all the endpoints, import the `Group_Chat.postman_collection.json` file into Postman. This collection contains all the API endpoints, allowing you to interact with and test the entire group chat application.
+
+
 ## Overview of Group Chat User Service File
 
 This file implements the core user-related functionalities of the group chat application. It includes services for creating, editing, logging in, logging out, and checking the login status of users. Additionally, it utilizes Redis for session management, ensuring efficient storage and retrieval of session-related data.
