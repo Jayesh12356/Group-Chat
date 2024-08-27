@@ -100,8 +100,15 @@ module.exports.loginGCUserServ = async (req) => {
 
     // Successful login
     req.response.message = "Login successful";
-    // Set token
-    await setToken(username);
+
+    // Set token with error handling for Redis
+    try {
+      await setToken(username);
+    } catch (redisError) {
+      console.error("Redis is down or unreachable:", redisError);
+      req.response.message =
+        "Login successful, but session could not be established. Please try again later.";
+    }
   } catch (error) {
     req.response.data = null;
     req.response.message = error.message;
@@ -112,8 +119,14 @@ module.exports.loginGCUserServ = async (req) => {
 module.exports.logoutGCUserServ = async (req) => {
   try {
     // Logic for logout can be handled here
-    const result = await deleteToken(req.body.username);
-    req.response.message = "Logout successful";
+    try {
+      await deleteToken(req.body.username);
+      req.response.message = "Logout successful";
+    } catch (redisError) {
+      console.error("Redis is down or unreachable:", redisError);
+      req.response.message =
+        "Logout successful, but session may still be active.";
+    }
   } catch (error) {
     req.response.data = null;
     req.response.message = error.message;
@@ -123,10 +136,18 @@ module.exports.logoutGCUserServ = async (req) => {
 
 module.exports.isLoggedInServ = async (req) => {
   try {
-    // Logic for logout can be handled here
-    const data = await getToken(req.body.username);
-    req.response.data = { isLoggedIn: true ? data == 1 : false };
-    // req.response.message = "Logout successful";
+    // Check if the user is logged in
+    let isLoggedIn = false;
+    try {
+      const data = await getToken(req.body.username);
+      isLoggedIn = data == 1; // Assuming that a value of 1 indicates a logged-in state
+    } catch (redisError) {
+      console.error("Redis is down or unreachable:", redisError);
+      req.response.message =
+        "Could not verify login status. Please try again later.";
+    }
+
+    req.response.data = { isLoggedIn };
   } catch (error) {
     req.response.data = null;
     req.response.message = error.message;
@@ -148,17 +169,38 @@ module.exports.getAllGCUsersServ = async (req) => {
 };
 
 //---------------------------------------------------REDIS FUNCTIONS------------------------------------------
+//----------------------------ENSURE REDIS IS CONNECTED LOCALLY----------------------------------------------
+//----------COMMAND TO START REDIS = redis-server.exe
 
 const redis = require("redis");
 
 // Create a Redis client
 const redisClient = redis.createClient({
   url: "redis://localhost:6379/0",
+  socket: {
+    reconnectStrategy: (retries) => {
+      if (retries >= 5) {
+        console.error("Too many reconnection attempts. Exiting.");
+        return new Error("Too many reconnection attempts");
+      }
+      console.log(`Reconnecting to Redis... Attempt: ${retries + 1}`);
+      return Math.min(retries * 100, 3000); // Delay in milliseconds
+    },
+  },
 });
 
 // Event listeners for connection errors and readiness
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 redisClient.on("ready", () => console.log("Redis client connected"));
+redisClient.on("connect", () => {
+  console.log("Connected to Redis");
+});
+redisClient.on("end", () => {
+  console.log("Disconnected from Redis");
+});
+redisClient.on("reconnecting", () => {
+  console.log("Reconnecting to Redis");
+});
 
 // Connect to the Redis server
 async function connectRedis() {
