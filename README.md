@@ -1,4 +1,3 @@
-
 ## How to Run the Application
 
 Follow these steps to set up and run the Group Chat application:
@@ -18,22 +17,31 @@ Follow these steps to set up and run the Group Chat application:
      redis-server.exe
      ```
 
-5. **Run the Application:**
+5. **Install Dependencies:**
+   - Before running the application, ensure all necessary packages are installed by running:
+     ```bash
+     npm install
+     ```
+
+6. **Run the Application:**
    - Once you have properly configured your MySQL database and Redis server, start the application by running:
      ```bash
      npm start
      ```
 
-6. **Server Logs:**
+7. **Server Logs:**
    - Look for the following logs to confirm that the server is up and running:
      ```
      Running on port 8002
      connected to database
      ```
 
-7. **Testing Endpoints:**
+8. **Testing Endpoints:**
    - To test all the endpoints, import the `Group_Chat.postman_collection.json` file into Postman. This collection contains all the API endpoints, allowing you to interact with and test the entire group chat application.
 
+
+
+This guide now includes the necessary step to install the dependencies, ensuring a smoother setup process.
 
 ## Overview of Group Chat User Service File
 
